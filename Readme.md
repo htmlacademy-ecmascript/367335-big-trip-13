@@ -1,7 +1,7 @@
 # Проект «Большое путешествие» [![Build status][travis-image]][travis-url]
 
 * Студент: [Андрей Ефимов](https://up.htmlacademy.ru/ecmascript/13/user/367335).
-* Наставник: `Неизвестно`.
+* Наставник: `Кексобот`.
 
 ---
 
