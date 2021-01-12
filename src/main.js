@@ -15,7 +15,8 @@ import {destinations} from './mock/destinations';
 import {CITY_NAMES} from './mock/const';
 
 import {RenderPosition} from './const';
-import {getRandomInt, renderElement} from './utils';
+import {getRandomInt} from './utils/random';
+import {render, replace} from './utils/render';
 
 const EVENTS_RANGE = [15, 20];
 const eventsCount = getRandomInt(...EVENTS_RANGE);
@@ -23,21 +24,20 @@ const events = new Array(eventsCount).fill().map(generateEvent);
 
 const headerMainElement = document.querySelector(`.trip-main`);
 const infoComponent = new InfoView(events);
-const infoElement = infoComponent.getElement();
-renderElement(infoElement, new CostView(events).getElement());
-renderElement(headerMainElement, new NewButtonView().getElement());
-renderElement(headerMainElement, infoElement, RenderPosition.AFTERBEGIN);
+render(infoComponent, new CostView(events));
+render(headerMainElement, new NewButtonView());
+render(headerMainElement, infoComponent, RenderPosition.AFTERBEGIN);
 
 const controlsElement = headerMainElement.querySelector(`.trip-controls`);
-renderElement(controlsElement.querySelector(`h2`), new TabsView().getElement(), RenderPosition.AFTEREND);
-renderElement(controlsElement, new FiltersView().getElement());
+render(controlsElement.querySelector(`h2`), new TabsView(), RenderPosition.AFTEREND);
+render(controlsElement, new FiltersView());
 
 const eventsElement = document.querySelector(`.trip-events`);
 if (eventsCount) {
-  renderElement(eventsElement, new SortingsView().getElement());
+  render(eventsElement, new SortingsView());
 
-  const listElement = new EventsListView().getElement();
-  renderElement(eventsElement, listElement);
+  const ListCompoment = new EventsListView();
+  render(eventsElement, ListCompoment);
 
   events.forEach((eventData) => {
     const eventComponent = new EventView(eventData);
@@ -49,36 +49,33 @@ if (eventsCount) {
     });
 
     const switchToEdit = () => {
-      listElement.replaceChild(eventEditComponent.getElement(), eventComponent.getElement());
+      replace(eventEditComponent, eventComponent);
+      document.addEventListener(`keydown`, escKeyDownHandler);
     };
     const switchToView = () => {
-      listElement.replaceChild(eventComponent.getElement(), eventEditComponent.getElement());
+      replace(eventComponent, eventEditComponent);
+      document.removeEventListener(`keydown`, escKeyDownHandler);
     };
 
     const escKeyDownHandler = (evt) => {
       if (evt.key === `Escape` || evt.key === `Esc`) {
         evt.preventDefault();
         switchToView();
-        document.removeEventListener(`keydown`, escKeyDownHandler);
       }
     };
-    const formCloseHandler = (evt) => {
-      evt.preventDefault();
+
+    eventComponent.setClickHandler(switchToEdit);
+
+    eventEditComponent.setSubmitHandler(() => {
       switchToView();
-    };
-
-    eventComponent.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
-      switchToEdit();
-      document.addEventListener(`keydown`, escKeyDownHandler);
     });
+    eventEditComponent.setResetHandler(() => {
+      switchToView();
+    });
+    eventEditComponent.setCloseHandler(switchToView);
 
-    const form = eventEditComponent.getElement().querySelector(`form`);
-    form.addEventListener(`submit`, formCloseHandler);
-    form.addEventListener(`reset`, formCloseHandler);
-    form.querySelector(`.event__rollup-btn`).addEventListener(`click`, formCloseHandler);
-
-    renderElement(listElement, eventComponent.getElement());
+    render(ListCompoment, eventComponent);
   });
 } else {
-  renderElement(eventsElement, new NoEventsView().getElement());
+  render(eventsElement, new NoEventsView());
 }

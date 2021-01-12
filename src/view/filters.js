@@ -1,4 +1,5 @@
-import {createElement, capitalize} from '../utils';
+import {capitalize} from '../utils/common';
+import AbstractView from '../view/abstract';
 import {FILTERS} from '../const';
 
 const defaultFilter = FILTERS[0];
@@ -34,24 +35,14 @@ const createFiltersTemplate = (activeFilter) => {
   `;
 };
 
-export default class FiltersView {
+export default class FiltersView extends AbstractView {
   constructor(activeFilter = defaultFilter) {
+    super();
+
     this._activeFilter = activeFilter;
   }
 
   getTemplate() {
     return createFiltersTemplate(this._activeFilter);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

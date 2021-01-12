@@ -1,4 +1,5 @@
-import {createElement, capitalize} from '../utils';
+import {capitalize} from '../utils/common';
+import AbstractView from '../view/abstract';
 import {SORTINGS} from '../const';
 
 const defaultSorting = SORTINGS[0];
@@ -36,24 +37,14 @@ const createSortingsTemplate = (activeSorting) => {
   `;
 };
 
-export default class SortingsView {
+export default class SortingsView extends AbstractView {
   constructor(activeSorting = defaultSorting) {
+    super();
+
     this._activeSorting = activeSorting;
   }
 
   getTemplate() {
     return createSortingsTemplate(this._activeSorting);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

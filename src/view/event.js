@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
-import {capitalize, formatWithLead0, createElement} from '../utils';
+import {capitalize, formatWithLead0} from '../utils/common';
+import AbstractView from '../view/abstract';
 
 const formatDuration = (startInstance, finishInstance) => {
   const minutes = finishInstance.diff(startInstance, `minute`);
@@ -100,24 +101,29 @@ export const createEventTemplate = ({
   `;
 };
 
-export default class EventView {
+export default class EventView extends AbstractView {
   constructor(eventData) {
+    super();
+
     this._event = eventData;
+    this._clickHandler = this._clickHandler.bind(this);
+  }
+
+  get _switchControl() {
+    return this.getElement().querySelector(`.event__rollup-btn`);
+  }
+
+  _clickHandler(evt) {
+    evt.preventDefault();
+    this._callback.click();
   }
 
   getTemplate() {
     return createEventTemplate(this._event);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
+  setClickHandler(callback) {
+    this._callback.click = callback;
+    this._switchControl.addEventListener(`click`, this._clickHandler);
   }
 }
