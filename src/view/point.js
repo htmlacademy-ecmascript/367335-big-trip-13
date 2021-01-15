@@ -1,10 +1,10 @@
 import dayjs from 'dayjs';
-import {capitalize, formatWithLead0} from '../utils/common';
+import {Utils} from '../utils';
 import AbstractView from '../view/abstract';
 
 const formatDuration = (startInstance, finishInstance) => {
   const minutes = finishInstance.diff(startInstance, `minute`);
-  const minuteStr = `${formatWithLead0(minutes % 60)}M`;
+  const minuteStr = `${Utils.formatWithLead0(minutes % 60)}M`;
 
   if (minutes < 60) {
     return minuteStr;
@@ -43,7 +43,7 @@ const createOffersList = (offers) => {
   `;
 };
 
-export const createEventTemplate = ({
+export const createPointTemplate = ({
   type,
   destination,
   startTime,
@@ -70,7 +70,7 @@ export const createEventTemplate = ({
             alt="Event type icon"
           />
         </div>
-        <h3 class="event__title">${capitalize(type.name)} ${destination.city}</h3>
+        <h3 class="event__title">${Utils.capitalize(type.name)} ${destination.city}</h3>
         <div class="event__schedule">
           <p class="event__time">
             <time class="event__start-time" datetime="${startDate.format()}">
@@ -101,29 +101,45 @@ export const createEventTemplate = ({
   `;
 };
 
-export default class EventView extends AbstractView {
-  constructor(eventData) {
+export default class PointView extends AbstractView {
+  constructor(pointData) {
     super();
 
-    this._event = eventData;
-    this._clickHandler = this._clickHandler.bind(this);
+    this._point = pointData;
+
+    this._editClickHandler = this._editClickHandler.bind(this);
+    this._favClickHandler = this._favClickHandler.bind(this);
   }
 
   get _switchControl() {
     return this.getElement().querySelector(`.event__rollup-btn`);
   }
 
-  _clickHandler(evt) {
+  get _favControl() {
+    return this.getElement().querySelector(`.event__favorite-btn`);
+  }
+
+  _editClickHandler(evt) {
     evt.preventDefault();
-    this._callback.click();
+    this._callback.editClick();
+  }
+
+  _favClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.favClick();
   }
 
   getTemplate() {
-    return createEventTemplate(this._event);
+    return createPointTemplate(this._point);
   }
 
-  setClickHandler(callback) {
-    this._callback.click = callback;
-    this._switchControl.addEventListener(`click`, this._clickHandler);
+  setEditClickHandler(editCallback) {
+    this._callback.editClick = editCallback;
+    this._switchControl.addEventListener(`click`, this._editClickHandler);
+  }
+
+  setFavClickHandler(favCallback) {
+    this._callback.favClick = favCallback;
+    this._favControl.addEventListener(`click`, this._favClickHandler);
   }
 }

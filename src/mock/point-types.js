@@ -1,5 +1,5 @@
-import {getRandomInt, getRandomItems} from '../utils/random';
-import {EVENT_TYPES, PRICE_RANGE} from './const';
+import {Random} from '../utils';
+import {POINT_TYPES, PRICE_RANGE} from './const';
 
 const OFFER_NAMES = [
   `Order Uber`,
@@ -13,15 +13,15 @@ const OFFER_NAMES = [
 ];
 const OFFERS_COUNT_RANGE = [0, 5];
 
-export const eventTypes = EVENT_TYPES.map((typeName) => {
-  const offerNames = getRandomItems(OFFER_NAMES, getRandomInt(...OFFERS_COUNT_RANGE));
+export const pointTypes = POINT_TYPES.map((typeName) => {
+  const offerNames = Random.getItems(OFFER_NAMES, Random.getInt(...OFFERS_COUNT_RANGE));
 
   return {
     name: typeName,
     offers: offerNames.map((name) => ({
       name,
       alias: name.slice(name.lastIndexOf(` `)).toLowerCase(),
-      price: getRandomInt(...PRICE_RANGE),
+      price: Random.getInt(...PRICE_RANGE),
       isChecked: false
     }))
   };

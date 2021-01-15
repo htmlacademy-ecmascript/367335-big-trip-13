@@ -1,12 +1,12 @@
-import {capitalize} from '../utils/common';
+import {Utils} from '../utils';
 import AbstractView from '../view/abstract';
 import {SORTINGS} from '../const';
 
 const defaultSorting = SORTINGS[0];
-const DISABLED_SORTINGS = [`event`, `offer`];
+const DISABLED_SORTINGS = [`point`, `offer`];
 
 const createListMarkup = (activeSorting) => SORTINGS.reduce((markup, sorting) => {
-  const title = capitalize(sorting);
+  const title = Utils.capitalize(sorting);
   const isActive = sorting === activeSorting;
   const isDisabled = DISABLED_SORTINGS.indexOf(sorting) > -1;
 
