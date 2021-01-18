@@ -5,8 +5,8 @@ const createOfferItem = (template, offer) => {
   return `
     ${template}
     <li class="event__offer">
-      <span class="event__offer-title">${offer.name}</span>
-      &nbsp;&plus;&euro;&nbsp;&nbsp;<span class="event__offer-price">${offer.price} </span>
+      <span class="event__offer-title">${offer.title}</span>
+      &nbsp;&plus;&euro;&nbsp;&nbsp;<span class="event__offer-price">${offer.price}</span>
     </li>
   `;
 };
@@ -25,14 +25,14 @@ const createOffersList = (offers) => {
 };
 
 export const createPointTemplate = ({
-  type,
+  pointType,
   destination,
   startTime,
-  finishTime,
-  price,
+  endTime,
+  basePrice,
   isFavorite
 }) => {
-  const {offers} = type;
+  const {offers} = pointType;
 
   return `
     <li class="trip-events__item">
@@ -45,25 +45,25 @@ export const createPointTemplate = ({
             class="event__type-icon"
             width="42"
             height="42"
-            src="img/icons/${type.name}.png"
+            src="img/icons/${pointType.type}.png"
             alt="Event type icon"
           />
         </div>
-        <h3 class="event__title">${Utils.capitalize(type.name)} ${destination.city}</h3>
+        <h3 class="event__title">${Utils.capitalize(pointType.type)} ${destination.name}</h3>
         <div class="event__schedule">
           <p class="event__time">
             <time class="event__start-time" datetime="${Dates.getISO(startTime)}">
               ${Dates.getTime(startTime)}
             </time>
             &mdash;
-            <time class="event__end-time" datetime="${Dates.getISO(finishTime)}">
-              ${Dates.getTime(finishTime)}
+            <time class="event__end-time" datetime="${Dates.getISO(endTime)}">
+              ${Dates.getTime(endTime)}
             </time>
           </p>
-          <p class="event__duration">${Dates.getFormattedDuration(startTime, finishTime)}</p>
+          <p class="event__duration">${Dates.getFormattedDuration(startTime, endTime)}</p>
         </div>
         <p class="event__price">
-          &euro;&nbsp;<span class="event__price-value">${price}</span>
+          &euro;&nbsp;<span class="event__price-value">${basePrice}</span>
         </p>
         ${createOffersList(offers)}
         <button class="event__favorite-btn ${isFavorite ? `event__favorite-btn--active` : ``}" type="button">
