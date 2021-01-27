@@ -1,9 +1,6 @@
 import flatpickr from 'flatpickr';
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
 import SmartView from './smart';
-import {pointTypes} from '../mock/point-types';
-import {destinations} from '../mock/destinations';
-import {CITY_NAMES} from '../mock/const';
 import {Dates, Utils} from '../utils';
 
 const KEY_24_HR = `time_24hr`;
@@ -13,46 +10,32 @@ const DATEPICKER_DEFAULTS = {
   [KEY_24_HR]: true
 };
 
-const getDefaultData = () => {
-  const [pointType] = pointTypes;
-  const [destination] = destinations;
-  const startTime = Dates.getISO(new Date());
-
-  return {
-    pointType,
-    destination,
-    startTime,
-    endTime: startTime,
-    basePrice: ``
-  };
-};
-
-const createPointTypes = (typeName) => pointTypes.reduce((template, {type}, i) => {
+const createPointTypes = (typeName, pointTypes) => pointTypes.reduce((template, {type}) => {
   const checkedAttr = type === typeName ? `checked` : ``;
   return `
     ${template}
     <div class="event__type-item">
       <input
-        id="event-type-${type}-${i + 1}"
+        id="event-type-${type}"
         class="event__type-input visually-hidden"
         type="radio"
         name="event-type"
         value="${type}"
         ${checkedAttr}
       />
-      <label class="event__type-label event__type-label--${type}" for="event-type-${type}-${i + 1}">
+      <label class="event__type-label event__type-label--${type}" for="event-type-${type}">
         ${Utils.capitalize(type)}
       </label>
     </div>
   `;
 }, ``);
 
-const createCitiesList = () => CITY_NAMES.reduce((template, cityName) => {
-  return `${template}<option value="${cityName}"></option>`;
+const createCitiesList = (destinations) => destinations.reduce((template, {name}) => {
+  return `${template}<option value="${name}"></option>`;
 }, ``);
 
 const createOffersList = (offers) => offers.reduce((template, offer, i) => {
-  const {title, alias, price: offerPrice, isChecked} = offer;
+  const {title, price: offerPrice, isChecked} = offer;
   const checkedAttr = isChecked ? `checked` : ``;
 
   return `
@@ -60,12 +43,13 @@ const createOffersList = (offers) => offers.reduce((template, offer, i) => {
     <div class="event__offer-selector">
       <input
         class="event__offer-checkbox visually-hidden"
-        id="event-offer-${alias}-${i + 1}"
+        id="event-offer-${i}"
         type="checkbox"
-        name="event-offer-${alias}"
+        name="event-offer-${i}"
+        data-offer-id="${i}"
         ${checkedAttr}
       />
-      <label class="event__offer-label" for="event-offer-${alias}-${i + 1}">
+      <label class="event__offer-label" for="event-offer-${i}">
         <span class="event__offer-title">${title}</span>
         &plus;&euro;&nbsp;
         <span class="event__offer-price">${offerPrice}</span>
@@ -79,17 +63,17 @@ const createPhotosList = (pictures) => pictures.reduce((template, {src, descript
 }, ``);
 
 const createPointEditTemplate = ({
-  id = 0,
+  id,
   isNewPoint,
-  pointType,
+  type,
   destination,
-  startTime,
-  endTime,
-  basePrice
-}) => {
-  const {offers, type: typeName} = pointType;
+  dateFrom,
+  dateTo,
+  basePrice,
+  offers
+}, pointTypes, destinations) => {
   const {name: city, description, pictures} = destination;
-  const isSubmitDisabled = !city || !startTime || !endTime || !basePrice;
+  const isSubmitDisabled = !city || !dateFrom || !dateTo || !basePrice;
 
   return `
     <li class="trip-events__item">
@@ -102,7 +86,7 @@ const createPointEditTemplate = ({
                 class="event__type-icon"
                 width="17"
                 height="17"
-                src="img/icons/${typeName}.png"
+                src="img/icons/${type}.png"
                 alt="Event type icon"
               />
             </label>
@@ -115,14 +99,14 @@ const createPointEditTemplate = ({
             <div class="event__type-list">
               <fieldset class="event__type-group">
                 <legend class="visually-hidden">Event type</legend>
-                ${createPointTypes(pointType)}
+                ${createPointTypes(type, pointTypes)}
               </fieldset>
             </div>
           </div>
 
           <div class="event__field-group event__field-group--destination">
             <label class="event__label event__type-output" for="event-destination-${id}">
-              ${Utils.capitalize(typeName)}
+              ${Utils.capitalize(type)}
             </label>
             <input
               class="event__input event__input--destination"
@@ -132,7 +116,7 @@ const createPointEditTemplate = ({
               value="${city}"
               list="destination-list-${id}"
             />
-            <datalist id="destination-list-${id}">${createCitiesList()}</datalist>
+            <datalist id="destination-list-${id}">${createCitiesList(destinations)}</datalist>
           </div>
 
           <div class="event__field-group  event__field-group--time">
@@ -142,7 +126,7 @@ const createPointEditTemplate = ({
               id="event-start-time-${id}"
               type="text"
               name="event-start-time"
-              value="${startTime}"
+              value="${dateFrom}"
             />
             &mdash;
             <label class="visually-hidden" for="event-end-time-${id}">To</label>
@@ -151,7 +135,7 @@ const createPointEditTemplate = ({
               id="event-end-time-${id}"
               type="text"
               name="event-end-time"
-              value="${endTime}"
+              value="${dateTo}"
             />
           </div>
 
@@ -203,18 +187,20 @@ const createPointEditTemplate = ({
 };
 
 export default class PointEditView extends SmartView {
-  constructor(point = getDefaultData()) {
+  constructor(point, pointTypes, destinations) {
     super();
 
     this._data = PointEditView.parsePointToData(point);
-    this._datepickerStart = null;
-    this._datepickerEnd = null;
+    this._datepickerFrom = null;
+    this._datepickerTo = null;
+    this._pointTypes = Utils.cloneDeep(pointTypes);
+    this._destinations = Utils.cloneDeep(destinations);
 
     this._changeDestinationHandler = this._changeDestinationHandler.bind(this);
-    this._changeEndDateHandler = this._changeEndDateHandler.bind(this);
+    this._changeDateToHandler = this._changeDateToHandler.bind(this);
     this._changeOfferHandler = this._changeOfferHandler.bind(this);
     this._changePointTypeHandler = this._changePointTypeHandler.bind(this);
-    this._changeStartDateHandler = this._changeStartDateHandler.bind(this);
+    this._changeDateFromHandler = this._changeDateFromHandler.bind(this);
     this._closeClickHandler = this._closeClickHandler.bind(this);
     this._deleteHandler = this._deleteHandler.bind(this);
     this._inputDestinationHandler = this._inputDestinationHandler.bind(this);
@@ -228,11 +214,11 @@ export default class PointEditView extends SmartView {
     return this._form.querySelector(`.event__rollup-btn`);
   }
 
-  get _dateEndField() {
+  get _dateToField() {
     return this._form.querySelector(`[name="event-end-time"]`);
   }
 
-  get _dateStartField() {
+  get _dateFromField() {
     return this._form.querySelector(`[name="event-start-time"]`);
   }
 
@@ -261,21 +247,21 @@ export default class PointEditView extends SmartView {
   }
 
   getTemplate() {
-    return createPointEditTemplate(this._data);
+    return createPointEditTemplate(this._data, this._pointTypes, this._destinations);
   }
 
   removeElement() {
     // переопределяем метод родительского класса, чтобы удалялись ненужные календари
     super.removeElement();
 
-    if (this._datepickerStart) {
-      this._datepickerStart.destroy();
-      this._datepickerStart = null;
+    if (this._datepickerFrom) {
+      this._datepickerFrom.destroy();
+      this._datepickerFrom = null;
     }
 
-    if (this._datepickerEnd) {
-      this._datepickerEnd.destroy();
-      this._datepickerEnd = null;
+    if (this._datepickerTo) {
+      this._datepickerTo.destroy();
+      this._datepickerTo = null;
     }
   }
 
@@ -308,7 +294,7 @@ export default class PointEditView extends SmartView {
   _changeDestinationHandler(evt) {
     evt.preventDefault();
 
-    const destination = PointEditView.getDestination(evt.target.value);
+    const destination = PointEditView.getDestination(evt.target.value, this._destinations);
 
     if (!destination.name) {
       evt.target.value = ``;
@@ -319,38 +305,34 @@ export default class PointEditView extends SmartView {
     });
   }
 
-  _changeEndDateHandler([userDate]) {
+  _changeDateToHandler([userDate]) {
     this.updateData({
-      endTime: Dates.humanize(userDate)
+      dateTo: Dates.humanize(userDate)
     }, null);
   }
 
   _changeOfferHandler(evt) {
     evt.preventDefault();
-    const alias = evt.target.name.replace(`event-offer-`, ``);
-    const {pointType} = this._data;
-    const offers = pointType.offers.slice();
-    const currentIndex = offers.findIndex((item) => item.alias === alias);
-    offers[currentIndex].isChecked = evt.target.checked;
+    const {offerId} = evt.target.dataset;
+    const offers = this._data.offers.slice();
+    offers[offerId].isChecked = evt.target.checked;
 
-    this.updateData({
-      pointType: Object.assign({}, pointType, {
-        offers
-      })
-    }, null);
+    this.updateData({offers}, null);
   }
 
   _changePointTypeHandler(evt) {
     evt.preventDefault();
 
+    const {type: typeName, offers} = this._pointTypes.find(({type}) => type === evt.target.value);
     this.updateData({
-      pointType: pointTypes.find(({type}) => type === evt.target.value)
+      type: typeName,
+      offers: offers.slice()
     });
   }
 
-  _changeStartDateHandler([userDate]) {
+  _changeDateFromHandler([userDate]) {
     this.updateData({
-      startTime: Dates.humanize(userDate)
+      dateFrom: Dates.humanize(userDate)
     }, null);
   }
 
@@ -367,7 +349,7 @@ export default class PointEditView extends SmartView {
   _inputDestinationHandler(evt) {
     evt.preventDefault();
 
-    const destination = PointEditView.getDestination(evt.target.value);
+    const destination = PointEditView.getDestination(evt.target.value, this._destinations);
     this.updateData({
       destination
     }, destination.description ? this.updateELement : null);
@@ -387,16 +369,16 @@ export default class PointEditView extends SmartView {
     });
   }
 
-  _setEndDatepicker() {
-    if (this._datepickerEnd) {
+  _setDatepickerTo() {
+    if (this._datepickerTo) {
       // при обновлении удаляем вспомогательные элементы, создаваемые при инициализации
-      this._datepickerEnd.destroy();
-      this._datepickerEnd = null;
+      this._datepickerTo.destroy();
+      this._datepickerTo = null;
     }
 
-    this._datepickerEnd = flatpickr(this._dateEndField, Object.assign({}, DATEPICKER_DEFAULTS, {
-      defaultDate: this._data.endTime,
-      onChange: this._changeEndDateHandler
+    this._datepickerTo = flatpickr(this._dateToField, Object.assign({}, DATEPICKER_DEFAULTS, {
+      defaultDate: this._data.dateTo,
+      onChange: this._changeDateToHandler
     }));
   }
 
@@ -413,20 +395,20 @@ export default class PointEditView extends SmartView {
     this._destinationField.addEventListener(`change`, this._changeDestinationHandler);
     this._priceField.addEventListener(`input`, this._inputPriceHandler);
 
-    this._setStartDatepicker();
-    this._setEndDatepicker();
+    this._setDatepickerFrom();
+    this._setDatepickerTo();
   }
 
-  _setStartDatepicker() {
-    if (this._datepickerStart) {
+  _setDatepickerFrom() {
+    if (this._datepickerFrom) {
       // при обновлении удаляем вспомогательные элементы, создаваемые при инициализации
-      this._datepickerStart.destroy();
-      this._datepickerStart = null;
+      this._datepickerFrom.destroy();
+      this._datepickerFrom = null;
     }
 
-    this._datepickerStart = flatpickr(this._dateStartField, Object.assign({}, DATEPICKER_DEFAULTS, {
-      defaultDate: this._data.startTime,
-      onChange: this._changeStartDateHandler
+    this._datepickerFrom = flatpickr(this._dateFromField, Object.assign({}, DATEPICKER_DEFAULTS, {
+      defaultDate: this._data.dateFrom,
+      onChange: this._changeDateFromHandler
     }));
   }
 
@@ -440,31 +422,28 @@ export default class PointEditView extends SmartView {
     this._callback.submit(PointEditView.parseDataToPoint(this._data));
   }
 
-  static getDestination(city) {
-    city = city.trim();
-    const destination = destinations.find(({name}) => name === city) || {
+  static getDestination(city, destinations) {
+    return destinations.find(({name}) => name === city) || {
       name: ``,
       description: null,
       pictures: null
     };
-
-    return destination;
   }
 
   static parseDataToPoint(data) {
     delete data.isNewPoint;
 
     return Object.assign({}, data, {
-      startTime: Dates.unhumanize(data.startTime),
-      endTime: Dates.unhumanize(data.endTime)
+      dateFrom: Dates.getInst(data.dateFrom, true),
+      dateTo: Dates.getInst(data.dateTo, true),
+      basePrice: parseInt(data.basePrice, 10)
     });
   }
 
   static parsePointToData(point) {
     return Object.assign({}, point, {
-      startTime: Dates.humanize(point.startTime),
-      endTime: Dates.humanize(point.endTime),
-      isNewPoint: !point.id
+      dateFrom: Dates.humanize(point.dateFrom),
+      dateTo: Dates.humanize(point.dateTo)
     });
   }
 }

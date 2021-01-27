@@ -25,42 +25,41 @@ const createOffersList = (offers) => {
 };
 
 export const createPointTemplate = ({
-  pointType,
+  type,
   destination,
-  startTime,
-  endTime,
+  dateFrom,
+  dateTo,
   basePrice,
-  isFavorite
+  isFavorite,
+  offers
 }) => {
-  const {offers} = pointType;
-
   return `
     <li class="trip-events__item">
       <div class="event">
-        <time class="event__date" datetime="${Dates.getISODate(startTime)}">
-          ${Dates.getHumanDate(startTime)}
+        <time class="event__date" datetime="${Dates.getISODate(dateFrom)}">
+          ${Dates.getHumanDate(dateFrom)}
         </time>
         <div class="event__type">
           <img
             class="event__type-icon"
             width="42"
             height="42"
-            src="img/icons/${pointType.type}.png"
+            src="img/icons/${type}.png"
             alt="Event type icon"
           />
         </div>
-        <h3 class="event__title">${Utils.capitalize(pointType.type)} ${destination.name}</h3>
+        <h3 class="event__title">${Utils.capitalize(type)} ${destination.name}</h3>
         <div class="event__schedule">
           <p class="event__time">
-            <time class="event__start-time" datetime="${Dates.getISO(startTime)}">
-              ${Dates.getTime(startTime)}
+            <time class="event__start-time" datetime="${Dates.getISO(dateFrom)}">
+              ${Dates.getTime(dateFrom)}
             </time>
             &mdash;
-            <time class="event__end-time" datetime="${Dates.getISO(endTime)}">
-              ${Dates.getTime(endTime)}
+            <time class="event__end-time" datetime="${Dates.getISO(dateTo)}">
+              ${Dates.getTime(dateTo)}
             </time>
           </p>
-          <p class="event__duration">${Dates.getFormattedDuration(startTime, endTime)}</p>
+          <p class="event__duration">${Dates.getFormattedDuration(dateFrom, dateTo)}</p>
         </div>
         <p class="event__price">
           &euro;&nbsp;<span class="event__price-value">${basePrice}</span>
