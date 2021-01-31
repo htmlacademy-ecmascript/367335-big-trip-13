@@ -4,12 +4,24 @@ export default class Store {
     this._storeKey = key;
   }
 
+  getAssets() {
+    const {pointTypes, destinations} = this.getItems();
+    return {pointTypes, destinations};
+  }
+
   getItems() {
     try {
       return JSON.parse(this._storage.getItem(this._storeKey)) || {};
     } catch (err) {
       return {};
     }
+  }
+
+  getPoints() {
+    const storyData = this.getItems();
+    delete(storyData.pointTypes);
+    delete(storyData.destinations);
+    return storyData;
   }
 
   removeItem(key) {

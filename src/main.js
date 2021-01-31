@@ -42,19 +42,25 @@ tripPresenter.init(newButtonComponent, tabsComponent, new StatsView());
 infoPresenter.init();
 filterPresenter.init();
 
-apiWithProvider.getAssets(tripPresenter.stop)
-  .then(pointsModel.setAssets)
-  .then(apiWithProvider.getPoints, tripPresenter.stop)
-  .then((points) => {
-    pointsModel.setPoints(UpdateType.INIT, points);
-  }, () => {
-    pointsModel.setPoints(UpdateType.INIT, []);
-  })
+apiWithProvider.getAssets()
+  .then((assets) => {
+    if (!assets.pointTypes || !assets.destinations) {
+      tripPresenter.stop(`No assets - no app!`);
+    }
+
+    pointsModel.setAssets(assets);
+    apiWithProvider.getPoints()
+      .then((points) => {
+        pointsModel.setPoints(UpdateType.INIT, points);
+      }, () => {
+        pointsModel.setPoints(UpdateType.INIT, []);
+      });
+    })
   .catch(tripPresenter.stop);
 
-// window.addEventListener(`load`, () => {
-//   navigator.serviceWorker.register(`./sw.js`);
-// });
+window.addEventListener(`load`, () => {
+  navigator.serviceWorker.register(`./sw.js`);
+});
 
 window.addEventListener(`online`, () => {
   document.title = document.title.replace(` [offline]`, ``);

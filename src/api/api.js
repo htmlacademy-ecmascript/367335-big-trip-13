@@ -43,7 +43,7 @@ export default class Api {
 
   getAssets() {
     return Promise.all([
-      this._load({url: `offers1`}),
+      this._load({url: `offers`}),
       this._load({url: `destinations`})
     ])
       .then((responses) => Promise.all(responses.map(Api.toJSON)))
@@ -61,23 +61,18 @@ export default class Api {
           destinations
         };
       })
-      .catch(Api.catchError);
+      .catch((err) => err);
   }
 
   getPoints() {
-    if (!this._pointTypes.length) {
-      return Promise.reject(`No point types`);
-    }
-
-    console.log(this._pointTypes);
     return this._load({url: `points`})
       .then(Api.toJSON)
-      .then((points) => points.map((point) => PointsModel.adaptToClient(point, Utils.cloneDeep(this._pointTypes))))
+      .then((points) => {
+        return points.map((point) => {
+          return PointsModel.adaptToClient(point, Utils.cloneDeep(this._pointTypes));
+        });
+      })
       .catch(Api.catchError);
-  }
-
-  setPointTypes({pointTypes}) {
-    this._pointTypes = Utils.cloneDeep(pointTypes);
   }
 
   sync(data) {
