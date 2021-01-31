@@ -55,7 +55,7 @@ apiWithProvider.getAssets()
       }, () => {
         pointsModel.setPoints(UpdateType.INIT, []);
       });
-    })
+  })
   .catch(tripPresenter.stop);
 
 window.addEventListener(`load`, () => {
@@ -64,7 +64,9 @@ window.addEventListener(`load`, () => {
 
 window.addEventListener(`online`, () => {
   document.title = document.title.replace(` [offline]`, ``);
-  apiWithProvider.sync();
+  if (apiWithProvider.isNotSync) {
+    apiWithProvider.sync();
+  }
 });
 
 window.addEventListener(`offline`, () => {
