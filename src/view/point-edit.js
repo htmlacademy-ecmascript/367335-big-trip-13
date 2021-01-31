@@ -3,11 +3,10 @@ import '../../node_modules/flatpickr/dist/flatpickr.min.css';
 import SmartView from './smart';
 import {Dates, Utils} from '../utils';
 
-const KEY_24_HR = `time_24hr`;
 const DATEPICKER_DEFAULTS = {
-  dateFormat: `d/m/y H:i`,
-  enableTime: true,
-  [KEY_24_HR]: true
+  'dateFormat': `d/m/y H:i`,
+  'enableTime': true,
+  'time_24hr': true
 };
 
 const createPointTypes = (typeName, pointTypes, isDisabled) => pointTypes.reduce((template, {type}) => {
@@ -209,8 +208,8 @@ export default class PointEditView extends SmartView {
     this._data = PointEditView.parsePointToData(point);
     this._datepickerFrom = null;
     this._datepickerTo = null;
-    this._pointTypes = Utils.cloneDeep(pointTypes);
-    this._destinations = Utils.cloneDeep(destinations);
+    this._pointTypes = Utils.cloneData(pointTypes);
+    this._destinations = Utils.cloneData(destinations);
 
     this._changeDestinationHandler = this._changeDestinationHandler.bind(this);
     this._changeDateToHandler = this._changeDateToHandler.bind(this);
