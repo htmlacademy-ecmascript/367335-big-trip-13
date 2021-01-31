@@ -30,7 +30,7 @@ export default class Api {
       headers: new Headers({'Content-Type': `application/json`})
     })
       .then(Api.toJSON)
-      .then((res) => PointsModel.adaptToClient(res, Utils.cloneDeep(this._pointTypes)))
+      .then((res) => PointsModel.adaptToClient(res, Utils.cloneData(this._pointTypes)))
       .catch(Api.catchError);
   }
 
@@ -54,7 +54,7 @@ export default class Api {
           });
           return pointType;
         });
-        this._pointTypes = Utils.cloneDeep(pointTypes);
+        this._pointTypes = Utils.cloneData(pointTypes);
 
         return {
           pointTypes: this._pointTypes,
@@ -69,7 +69,7 @@ export default class Api {
       .then(Api.toJSON)
       .then((points) => {
         return points.map((point) => {
-          return PointsModel.adaptToClient(point, Utils.cloneDeep(this._pointTypes));
+          return PointsModel.adaptToClient(point, Utils.cloneData(this._pointTypes));
         });
       })
       .catch(Api.catchError);
@@ -93,7 +93,7 @@ export default class Api {
       headers: new Headers({'Content-Type': `application/json`})
     })
       .then(Api.toJSON)
-      .then((res) => PointsModel.adaptToClient(res, Utils.cloneDeep(this._pointTypes)))
+      .then((res) => PointsModel.adaptToClient(res, Utils.cloneData(this._pointTypes)))
       .catch(Api.catchError);
   }
 

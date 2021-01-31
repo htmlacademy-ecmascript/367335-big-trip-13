@@ -208,8 +208,8 @@ export default class PointEditView extends SmartView {
     this._data = PointEditView.parsePointToData(point);
     this._datepickerFrom = null;
     this._datepickerTo = null;
-    this._pointTypes = Utils.cloneDeep(pointTypes);
-    this._destinations = Utils.cloneDeep(destinations);
+    this._pointTypes = Utils.cloneData(pointTypes);
+    this._destinations = Utils.cloneData(destinations);
 
     this._changeDestinationHandler = this._changeDestinationHandler.bind(this);
     this._changeDateToHandler = this._changeDateToHandler.bind(this);
