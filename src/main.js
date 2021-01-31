@@ -38,7 +38,7 @@ const tripPresenter = new TripPresenter(tripMainElement, pointsModel, filterMode
 Render.render(tripHeadingElement, tabsComponent, RenderPosition.AFTEREND);
 Render.render(tripHeaderElement, newButtonComponent);
 
-tripPresenter.init(newButtonComponent, tabsComponent, new StatsView());
+tripPresenter.init(newButtonComponent, tabsComponent, new StatsView(), filterPresenter);
 infoPresenter.init();
 filterPresenter.init();
 
@@ -52,15 +52,16 @@ apiWithProvider.getAssets()
     apiWithProvider.getPoints()
       .then((points) => {
         pointsModel.setPoints(UpdateType.INIT, points);
+        filterPresenter.init();
       }, () => {
         pointsModel.setPoints(UpdateType.INIT, []);
       });
   })
   .catch(tripPresenter.stop);
 
-window.addEventListener(`load`, () => {
-  navigator.serviceWorker.register(`./sw.js`);
-});
+// window.addEventListener(`load`, () => {
+//   navigator.serviceWorker.register(`./sw.js`);
+// });
 
 window.addEventListener(`online`, () => {
   document.title = document.title.replace(` [offline]`, ``);
