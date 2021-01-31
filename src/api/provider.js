@@ -56,7 +56,11 @@ export default class Provider {
     }
 
     const storePoints = Object.values(this._store.getPoints());
-    return Promise.resolve(storePoints.map(PointsModel.adaptToClient));
+    const {pointTypes} = this._store.getItems();
+
+    return Promise.resolve(storePoints.map((point) => {
+      return PointsModel.adaptToClient(point, pointTypes);
+    }));
   }
 
   sync() {
