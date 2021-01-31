@@ -1,5 +1,5 @@
-import PointsModel from './model/points';
-import {Utils} from './utils';
+import PointsModel from '../model/points';
+import {Utils} from '../utils';
 
 const Method = {
   DELETE: `DELETE`,
@@ -43,7 +43,7 @@ export default class Api {
 
   getAssets() {
     return Promise.all([
-      this._load({url: `offers`}),
+      this._load({url: `offers1`}),
       this._load({url: `destinations`})
     ])
       .then((responses) => Promise.all(responses.map(Api.toJSON)))
@@ -56,20 +56,38 @@ export default class Api {
         });
         this._pointTypes = Utils.cloneDeep(pointTypes);
 
-        return {pointTypes, destinations};
+        return {
+          pointTypes: this._pointTypes,
+          destinations
+        };
       })
       .catch(Api.catchError);
   }
 
   getPoints() {
     if (!this._pointTypes.length) {
-      return Promise.reject;
+      return Promise.reject(`No point types`);
     }
 
+    console.log(this._pointTypes);
     return this._load({url: `points`})
       .then(Api.toJSON)
       .then((points) => points.map((point) => PointsModel.adaptToClient(point, Utils.cloneDeep(this._pointTypes))))
       .catch(Api.catchError);
+  }
+
+  setPointTypes({pointTypes}) {
+    this._pointTypes = Utils.cloneDeep(pointTypes);
+  }
+
+  sync(data) {
+    return this._load({
+      url: `points/sync`,
+      method: Method.POST,
+      body: JSON.stringify(data),
+      headers: new Headers({'Content-Type': `application/json`})
+    })
+      .then(Api.toJSON);
   }
 
   updatePoint(point) {
