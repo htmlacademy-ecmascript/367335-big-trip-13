@@ -1,11 +1,11 @@
-import NewButtonView from './view/new-button';
-import TabsView from './view/tabs';
-import StatsView from './view/stats';
-import InfoPresenter from './presenter/info';
-import FilterPresenter from './presenter/filter';
-import TripPresenter from './presenter/trip';
-import FilterModel from './model/filter';
-import PointsModel from './model/points';
+import NewButtonView from './view/new-button-view';
+import TabsView from './view/tabs-view';
+import StatsView from './view/stats-view';
+import InfoPresenter from './presenter/info-presenter';
+import FilterPresenter from './presenter/filter-presenter';
+import TripPresenter from './presenter/trip-presenter';
+import FilterModel from './model/filter-model';
+import PointsModel from './model/points-model';
 import Api from './api/api';
 import Store from './api/store';
 import Provider from './api/provider';
@@ -59,9 +59,9 @@ apiWithProvider.getAssets()
   })
   .catch(tripPresenter.stop);
 
-// window.addEventListener(`load`, () => {
-//   navigator.serviceWorker.register(`./sw.js`);
-// });
+window.addEventListener(`load`, () => {
+  navigator.serviceWorker.register(`./sw.js`);
+});
 
 window.addEventListener(`online`, () => {
   document.title = document.title.replace(` [offline]`, ``);

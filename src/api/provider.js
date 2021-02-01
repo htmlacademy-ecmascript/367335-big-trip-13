@@ -1,4 +1,4 @@
-import PointsModel from '../model/points';
+import PointsModel from '../model/points-model';
 import {Utils} from '../utils';
 
 export default class Provider {

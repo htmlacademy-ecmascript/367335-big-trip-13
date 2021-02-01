@@ -1,4 +1,4 @@
-import FilterView from '../view/filter';
+import FilterView from '../view/filter-view';
 import {Render} from '../utils';
 import {UpdateType, FilterType} from '../const';
 

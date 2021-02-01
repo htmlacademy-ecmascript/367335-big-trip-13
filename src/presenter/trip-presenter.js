@@ -1,9 +1,9 @@
-import SortView from '../view/sort';
-import PointsListView from '../view/points-list';
-import NoPointsView from '../view/no-points';
-import LoadingView from '../view/loading';
-import PointPresenter, {State as PointPresenterViewState} from './point';
-import PointNewPresenter from './point-new';
+import SortView from '../view/sort-view';
+import PointsListView from '../view/points-list-view';
+import NoPointsView from '../view/no-points-view';
+import LoadingView from '../view/loading-view';
+import PointPresenter, {State as PointPresenterViewState} from './point-presenter';
+import PointNewPresenter from './point-new-presenter';
 import {Dates, Render, Utils} from '../utils';
 import {FilterType, RenderPosition, SortType, Tabs, UpdateType, UserAction} from '../const';
 
