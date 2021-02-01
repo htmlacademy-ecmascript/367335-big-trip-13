@@ -1,6 +1,6 @@
 import flatpickr from 'flatpickr';
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
-import SmartView from './smart';
+import SmartView from './smart-view';
 import {Dates, Utils} from '../utils';
 
 const DATEPICKER_DEFAULTS = {
